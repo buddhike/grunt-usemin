@@ -460,6 +460,34 @@ describe('useminPrepare', function () {
     });
   });
 
+  describe('relative path', function () {
+    it('should have the correct root for generated path', function () {
+      grunt.log.muted = true;
+      grunt.config.init();
+      grunt.config('useminPrepare', { html: 'app/foo/index.html' });
+      grunt.file.mkdir('app/foo');
+      grunt.file.copy(path.join(__dirname, 'fixtures/relative_path_parent.html'), 'app/foo/index.html');
+
+      grunt.task.run('useminPrepare');
+      grunt.task.start();
+
+      var concat = grunt.config('concat');
+      assert.ok(concat);
+      assert.ok(concat.generated);
+      assert.equal(concat.generated.files.length, 1);
+      var files = concat.generated.files[0];
+
+      assert.equal(files.dest, '.tmp/concat/scripts/thisthat.js');
+      assert.equal(files.src.length, 2);
+      assert.equal(files.src[0], 'app/scripts/this.js');
+
+      var uglify = grunt.config('uglify');
+      assert.equal(uglify.generated.files.length, 1);
+      files = uglify.generated.files[0];
+      assert.equal(files.dest, 'dist/scripts/thisthat.js');
+    });
+  });
+
   it('should take dest option into consideration', function () {
     grunt.log.muted = true;
     grunt.config.init();
